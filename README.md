@@ -57,12 +57,25 @@ python3 nb2r.py \
   --wordlist params.txt \
   --oauth-refresh '{"url":"https://auth.com/token","client_id":"abc","client_secret":"xyz","refresh_token":"longtoken..."}'
 
+✅ Requirements
+Python 3 is installed (which Parrot comes with by default)
+
+You install the only dependency manually:
+pip install colorama
+______________________________________________________________________________________
+
+Optional Tools (if using features like proxies):
+A proxy like Burp Suite can be run on localhost for request inspection
+
+curl is only used for PoC logging (not a runtime requirement)
+
 
 🧪 Output
 📜 Exploits → nb2r_exploits.log
 💣 curl PoCs → nb2r_poc.sh
 📊 HTML Report → nb2r_report.html
 📈 CLI Dashboard → Auto-updates every 10 fuzz cycles
+
 
 
 🛡 Profiles
