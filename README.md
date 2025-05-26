@@ -35,6 +35,9 @@ Built for offensive security researchers, bug bounty hunters, and red teams who 
 ✅ Exploit chain tracking  
 ✅ HTML PoC report (`nb2r_report.html`)
 
+![image](https://github.com/user-attachments/assets/0a9589d5-d2e7-4fcd-89ce-1017d25d20e8)
+
+
 ---
 
 ![image](https://github.com/user-attachments/assets/e7b936f7-645e-4a9e-829d-bd4fd2fa9a28)
