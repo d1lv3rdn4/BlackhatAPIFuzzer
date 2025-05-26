@@ -118,30 +118,34 @@ def recursive_value_payloads(template, value):
         mutated.append(clone)
     return mutated
 
-# === HTML PoC REPORT BUILDER ===
+# === ADVANCED HTML PoC REPORT BUILDER ===
+from datetime import datetime
 
 def generate_html_report():
     try:
         with open("nb2r_exploits.log", "r") as f:
             log_data = f.read()
-        html = """
+
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        html = f"""
         <html>
         <head>
-        <title>NB2R PoC Report</title>
+        <title>NB2R Exploit Report</title>
         <style>
-        body { font-family: Arial, sans-serif; background-color: #111; color: #eee; padding: 20px; }
-        h1 { color: #00ffe7; }
-        h2 { color: #ff4081; }
-        .block { background: #222; padding: 12px; border-radius: 10px; margin-bottom: 20px; }
-        .param { color: #00ff99; font-weight: bold; }
-        .impact { color: #ffcc00; font-weight: bold; }
-        .payload { background: #333; padding: 10px; font-family: monospace; white-space: pre; }
-        .curl { color: #1ecbe1; font-family: monospace; }
+        body {{ font-family: Arial, sans-serif; background-color: #111; color: #eee; padding: 20px; }}
+        h1 {{ color: #00ffe7; }}
+        h2 {{ color: #ff4081; margin-bottom: 5px; }}
+        h3 {{ color: #1ecbe1; margin: 10px 0 5px; }}
+        .block {{ background: #222; padding: 16px; border-radius: 10px; margin-bottom: 30px; }}
+        .impact {{ color: #ffcc00; font-weight: bold; }}
+        .section {{ background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 10px; }}
+        .payload, .curl {{ background: #1a1a1a; padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; }}
+        .meta {{ font-size: 13px; color: #ccc; margin-bottom: 5px; }}
         </style>
         </head>
         <body>
         <h1>NB2R Exploit PoC Report</h1>
-        <p>Generated automatically with full attack chain insights and payload traces.</p>
+        <p class='meta'>Generated: {timestamp}</p>
         <hr>
         """
 
@@ -156,33 +160,54 @@ def generate_html_report():
             url, reason, status, length, payload = "", "", "", "", ""
             for line in lines:
                 if "@" in line:
-                    reason, url = line.split(" @ ")
+                    parts = line.split(" @ ")
+                    if len(parts) == 2:
+                        reason, url = parts
                 elif line.startswith("Status"):
                     status = line.split(":", 1)[1].strip()
                 elif line.startswith("Length"):
                     length = line.split(":", 1)[1].strip()
                 elif line.startswith("Payload"):
                     payload = line.split(":", 1)[1].strip()
-            html += f"<h2>Endpoint: {url}</h2>"
-            html += f"<p><span class='impact'>Impact:</span> {reason}</p>"
-            html += f"<p>Status Code: {status} | Length: {length}</p>"
-            html += f"<div class='payload'>Payload: {payload}</div>"
+
+            html += f"<h2>🔍 Finding: {reason}</h2>"
+            html += f"<div class='meta'>Target: {url} | HTTP {status} | Response Length: {length}</div>"
+
+            # Explanation
+            html += "<div class='section'><h3>What Was Found</h3>"
+            html += f"<p>This endpoint responded differently to the payload <code>{payload}</code>. The reason categorized was: <strong class='impact'>{reason}</strong>.</p></div>"
+
+            # How it was found
+            html += "<div class='section'><h3>How It Was Discovered</h3>"
+            html += "<p>NB2R tested this payload during a fuzzing session using randomized headers and adaptive delay logic. It detected a response anomaly (match or length diff), suggesting behavioral variation.</p></div>"
+
+            # Replication steps
+            html += "<div class='section'><h3>How To Reproduce</h3><ol>"
+            html += f"<li>Send a POST request to <code>{url}</code> with the following headers:</li><pre class='payload'>Content-Type: application/json</pre>"
+            html += f"<li>Use the following body:</li><div class='payload'>{payload}</div>"
+            html += f"<li>Observe the response code and length. A difference indicates the endpoint behavior can be manipulated.</li></ol></div>"
+
+            # Exploit PoC
+            html += "<div class='section'><h3>Working Exploit (curl)</h3>"
             if i < len(curls):
-                html += f"<div class='curl'>curl -X POST {curls[i].strip()}</div>"
+                curl_cmd = curls[i].strip()
+                if curl_cmd:
+                    html += f"<div class='curl'>curl -X POST {curl_cmd}</div>"
+                else:
+                    html += "<p>Exploit command was not captured.</p>"
             html += "</div>"
 
+            html += "</div>"  # end of .block
+
         html += "</body></html>"
+
         with open("nb2r_report.html", "w") as report:
             report.write(html)
-        print(Fore.CYAN + "[✓] HTML report saved as nb2r_report.html")
+
+        print(Fore.CYAN + "[✓] Advanced HTML report saved as nb2r_report.html")
+
     except Exception as e:
         print(Fore.RED + f"[!] HTML report generation failed: {e}")
-
-# Add to end of main block
-# print(Fore.GREEN + "[✓] NB2R fuzzing complete. Results:")
-# suggest_chains()
-# update_dashboard()
-# generate_html_report()
 
 # Done. All-in-one script now includes a full HTML PoC report generator for bug bounty submissions. 🎯
 
