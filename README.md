@@ -76,11 +76,6 @@ curl is only used for PoC logging (not a runtime requirement)
 📊 HTML Report → nb2r_report.html
 📈 CLI Dashboard → Auto-updates every 10 fuzz cycles
 
-Example of the report:
-
-![image](https://github.com/user-attachments/assets/2584cff9-1647-4a41-ae75-72f3dbd07620)
-
-
 
 
 🛡 Profiles
