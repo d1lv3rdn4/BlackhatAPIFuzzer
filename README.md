@@ -17,6 +17,7 @@
 - Build **curl PoCs**
 - Analyze **exploit chains**
 - Export an **HTML bug bounty report**
+- (LIMITATIONS) It's currently not modular obviously, it's all code within one file. So FFUF definately has advantages in other areas. I will slowly upgrade this more when I get time.
 
 Built for offensive security researchers, bug bounty hunters, and red teams who want more than just FFUF and Turbo Intruder.
 
