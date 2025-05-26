@@ -144,7 +144,7 @@ def generate_html_report():
         </style>
         </head>
         <body>
-        <h1>NB2R Exploit PoC Report</h1>
+        <h1>Blackhat API Fuzzer - Exploit PoC Report</h1>
         <p class='meta'>Generated: {timestamp}</p>
         <hr>
         """
