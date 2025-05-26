@@ -43,6 +43,36 @@ Built for offensive security researchers, bug bounty hunters, and red teams who 
 ![image](https://github.com/user-attachments/assets/e7b936f7-645e-4a9e-829d-bd4fd2fa9a28)
 
 
+✅ What’s Being Added:
+🔍 Automated Scanners
+scan_rce(), scan_sqli(), scan_ssrf(), scan_jwt(), scan_idor(), scan_file_inclusion(), scan_auth_bypass(), scan_xss()
+
+Each scanner can be toggled and runs in threads, respecting delays and baselines
+
+⚙️ JWT Manipulation Engine
+> Detects JWT in Authorization header
+> Decodes and mutates claims (role, alg, scope)
+> Tries "none", known weak keys, role escalation
+
+⚙️ OpenAPI/Swagger Import
+> Loads Swagger/OpenAPI JSON
+> Builds attack queue from all defined paths, methods, headers, bodies
+> Categorizes endpoints by auth required, input type, and body schema
+
+⚙️ Race Condition Detection
+> Sends concurrent POST/PUT/DELETE with same payload
+> Detects inconsistent or duplicated outcomes
+
+⚙️ SSRF Detection (Blind & Active)
+> Interact.sh support (auto-DNS callback payloads)
+> Logs SSRF confirmation when DNS log hit matches ID
+
+⚙️ Enhanced PoC Report
+> Grouped by vulnerability type
+> CVSS estimation
+> Impact explanation, screenshot slot, working exploit script (curl + Python)
+
+
 ## ⚙️ Usage
 
 ```bash
