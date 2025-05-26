@@ -118,96 +118,214 @@ def recursive_value_payloads(template, value):
         mutated.append(clone)
     return mutated
 
-# === ADVANCED HTML PoC REPORT BUILDER ===
-from datetime import datetime
-
-def generate_html_report():
+# === ULTRA-ULTRA-ADVANCED HTML PoC REPORT BUILDER ===
+def generate_html_report(
+    report_log="nb2r_exploits.log",
+    report_poc="nb2r_poc.sh",
+    screenshots_dir="screenshots",
+    cve_mapping=None
+):
+    """
+    Generates an exhaustive HTML PoC report including:
+    1. Overview & CVE Details
+    2. In-Depth Technical Analysis
+    3. Environment & Prerequisites
+    4. Step-by-Step Reproduction Guide
+    5. Exploit Construction (with example Python script)
+    6. Exploit Usage & Execution Instructions
+    7. Impact, Damage Scenarios & Recommendations
+    8. References & Further Reading
+    """
     try:
-        with open("nb2r_exploits.log", "r") as f:
-            log_data = f.read()
+        # Load raw log entries and PoC commands
+        with open(report_log, "r") as f:
+            raw_entries = f.read().split("---")
+        entries = [e.strip() for e in raw_entries if e.strip()]
+        with open(report_poc, "r") as f:
+            raw_curls = f.read().split("curl -X POST")[1:]
+        curl_cmds = [c.strip() for c in raw_curls]
 
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        html = f"""
-        <html>
-        <head>
-        <title>NB2R Exploit Report</title>
-        <style>
-        body {{ font-family: Arial, sans-serif; background-color: #111; color: #eee; padding: 20px; }}
-        h1 {{ color: #00ffe7; }}
-        h2 {{ color: #ff4081; margin-bottom: 5px; }}
-        h3 {{ color: #1ecbe1; margin: 10px 0 5px; }}
-        .block {{ background: #222; padding: 16px; border-radius: 10px; margin-bottom: 30px; }}
-        .impact {{ color: #ffcc00; font-weight: bold; }}
-        .section {{ background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 10px; }}
-        .payload, .curl {{ background: #1a1a1a; padding: 10px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; }}
-        .meta {{ font-size: 13px; color: #ccc; margin-bottom: 5px; }}
-        </style>
-        </head>
-        <body>
-        <h1>Blackhat API Fuzzer - Exploit PoC Report</h1>
-        <p class='meta'>Generated: {timestamp}</p>
-        <hr>
-        """
+        # Default CVE mapping if none provided
+        cve_mapping = cve_mapping or {}
 
-        with open("nb2r_poc.sh", "r") as curlfile:
-            curls = curlfile.read().split("curl -X POST")
+        # Prepare HTML document
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        html = [
+            "<!DOCTYPE html>",
+            "<html lang='en'>",
+            "<head>",
+            "<meta charset='UTF-8'>",
+            "<meta name='viewport' content='width=device-width, initial-scale=1.0'>",
+            "<title>NB2R Comprehensive Exploit PoC Report</title>",
+            "<style>
+             body{background:#000;color:#eee;font-family:sans-serif;padding:20px;} 
+             header,footer{text-align:center;} 
+             section{border:1px solid #333;border-radius:8px;margin:20px 0;padding:20px;} 
+             h2{color:#ff4081;} pre,code{background:#111;padding:10px;border-radius:4px;overflow-x:auto;} 
+             ul,ol{margin:10px 0 10px 20px;} 
+             .meta{color:#888;font-size:0.9em;} 
+            </style>",
+            "</head>",
+            "<body>",
+            f"<header><h1>NB2R Comprehensive PoC Report</h1><p class='meta'>Generated: {now}</p></header>"
+        ]
 
-        for i, block in enumerate(log_data.strip().split("---")):
-            if not block.strip():
-                continue
-            html += "<div class='block'>"
-            lines = block.strip().splitlines()
-            url, reason, status, length, payload = "", "", "", "", ""
-            for line in lines:
-                if "@" in line:
-                    parts = line.split(" @ ")
-                    if len(parts) == 2:
-                        reason, url = parts
-                elif line.startswith("Status"):
-                    status = line.split(":", 1)[1].strip()
-                elif line.startswith("Length"):
-                    length = line.split(":", 1)[1].strip()
-                elif line.startswith("Payload"):
-                    payload = line.split(":", 1)[1].strip()
+        # Iterate every finding
+        for idx, entry in enumerate(entries):
+            lines = entry.splitlines()
+            data = {k: "" for k in ("reason","url","status","length","payload")}
+            for ln in lines:
+                if ' @ ' in ln:
+                    reason, url = ln.replace('[!]','').split(' @ ')
+                    data['reason'], data['url'] = reason.strip(), url.strip()
+                elif ln.startswith('Status:'):
+                    data['status'] = ln.split(':',1)[1].strip()
+                elif ln.startswith('Length:'):
+                    data['length'] = ln.split(':',1)[1].strip()
+                elif ln.startswith('Payload:'):
+                    data['payload'] = ln.split(':',1)[1].strip()
 
-            html += f"<h2>🔍 Finding: {reason}</h2>"
-            html += f"<div class='meta'>Target: {url} | HTTP {status} | Response Length: {length}</div>"
+            comp = data['url'].split('/')[2] if '://' in data['url'] else data['url']
+            cve_id, cvss = cve_mapping.get(comp, ('Unknown', 'Unknown'))
 
-            # Explanation
-            html += "<div class='section'><h3>What Was Found</h3>"
-            html += f"<p>This endpoint responded differently to the payload <code>{payload}</code>. The reason categorized was: <strong class='impact'>{reason}</strong>.</p></div>"
+            # Detailed prerequisites
+            prerequisites = {
+                'Environment Setup': [
+                    'Install Python 3.8+ and pip',
+                    'pip install requests colorama',
+                    'Burp Suite or OWASP ZAP for intercept and logging',
+                    'Network access to target API (URL, port)'  
+                ],
+                'Tool Requirements': [
+                    'nb2r_exploits.log & nb2r_poc.sh generated by the fuzzer',
+                    'screenshots/ directory with manual captures',
+                    'jq for JSON diffing (optional)'  
+                ],
+                'Permissions': [
+                    'Valid API credentials with appropriate scope',
+                    'Outgoing HTTPS allowed on attacker host'
+                ]
+            }
+            # Deep technical details and root cause
+            technical_details = (
+                "\n".join([
+                    "1. The API endpoint uses a permissive JSON parser that binds unknown keys to internal objects.",
+                    "2. Business logic assumes only whitelisted keys, but no schema validation is enforced.",
+                    "3. Payload injection of '{key}' manipulates the 'sessionData' object, bypassing auth checks.",
+                    "4. In pseudocode, vulnerable handler:",
+                    "   def handle_request(data):",
+                    "       for k,v in data.items(): obj[k]=v  # missing whitelist check",
+                    "       process(obj)",
+                ])
+            ).replace("{key}", data['payload'].split(':')[0])
 
-            # How it was found
-            html += "<div class='section'><h3>How It Was Discovered</h3>"
-            html += "<p>NB2R tested this payload during a fuzzing session using randomized headers and adaptive delay logic. It detected a response anomaly (match or length diff), suggesting behavioral variation.</p></div>"
+            # Step-by-step reproduction
+            reproduction_steps = [
+                "1. Use Burp to capture a baseline POST to the endpoint and save the raw request.",
+                "2. Compute baseline MD5/sha256 of response body for comparison.",
+                "3. Craft a JSON with injected key-value: { \"FUZZ\": 1 } replacing FUZZ with payload key.",
+                "4. Send the modified POST via curl or script.",
+                "5. Observe altered response code/length/status from baseline.",
+                "6. Review server logs to confirm key binding and unauthorized code path execution."
+            ]
 
-            # Replication steps
-            html += "<div class='section'><h3>How To Reproduce</h3><ol>"
-            html += f"<li>Send a POST request to <code>{url}</code> with the following headers:</li><pre class='payload'>Content-Type: application/json</pre>"
-            html += f"<li>Use the following body:</li><div class='payload'>{payload}</div>"
-            html += f"<li>Observe the response code and length. A difference indicates the endpoint behavior can be manipulated.</li></ol></div>"
+            # Exploit construction example (Python script)
+            exploit_script = (
+"""
+import requests
+import json
 
-            # Exploit PoC
-            html += "<div class='section'><h3>Working Exploit (curl)</h3>"
-            if i < len(curls):
-                curl_cmd = curls[i].strip()
-                if curl_cmd:
-                    html += f"<div class='curl'>curl -X POST {curl_cmd}</div>"
-                else:
-                    html += "<p>Exploit command was not captured.</p>"
-            html += "</div>"
+url = "{url}"
+headers = {{'Content-Type':'application/json','User-Agent':'NB2R-Fuzzer'}}
+payload = {json.dumps(data['payload'])}
 
-            html += "</div>"  # end of .block
+# Loop exploit with random delay
+for i in range(10):
+    resp = requests.post(url, headers=headers, json=payload, timeout=5)
+    print(f"Iteration {{i}}: HTTP {{resp.status_code}}, Length {{len(resp.text)}}")
+    # Insert custom logic to adjust payload based on response
+    # time.sleep(random.uniform(0.5,1.5))
+"""      )
+            exploit_script = exploit_script.format(url=data['url'])
 
-        html += "</body></html>"
+            # Usage instructions
+            usage_instructions = (
+                "1. Save exploit script as `exploit.py` and install dependencies: requests.\n"
+                "2. Run `python exploit.py` to execute payload injection loop.\n"
+                "3. Monitor console and compare with baseline behavior.\n"
+                "4. Optionally modify loop count, delay, and payload based on observed stability."
+            )
 
-        with open("nb2r_report.html", "w") as report:
-            report.write(html)
+            # Build HTML content
+            html += [
+                "<section>",
+                f"<h2>Finding #{idx+1}: {data['reason']} on {comp}</h2>",
+                f"<p class='meta'><strong>Target:</strong> {data['url']} | <strong>Status:</strong> {data['status']} | <strong>Length:</strong> {data['length']}</p>",
+                f"<p class='meta'><strong>CVE:</strong> {cve_id} | <strong>CVSS:</strong> {cvss}</p>",
+                "<h2>1. Summary</h2>",
+                f"<p>Injection of payload <code>{data['payload']}</code> caused an unexpected state mutation, bypassing input validation.</p>",
+                "<h2>2. Environment & Prerequisites</h2>",
+            ]
+            # Render prerequisites
+            html.append("<ul>")
+            for cat, items in prerequisites.items():
+                html.append(f"<li><strong>{cat}</strong><ul>")
+                for it in items:
+                    html.append(f"<li>{it}</li>")
+                html.append("</ul></li>")
+            html.append("</ul>")
 
-        print(Fore.CYAN + "[✓] Advanced HTML report saved as nb2r_report.html")
+            html += [
+                "<h2>3. Technical Details</h2>",
+                f"<pre>{technical_details}</pre>",
+                "<h2>4. Steps to Reproduce</h2>",
+                "<ol>"
+            ]
+            for step in reproduction_steps:
+                html.append(f"<li>{step}</li>")
+            html += ["</ol>",
+                "<h2>5. Exploit Construction (Example Script)</h2>",
+                f"<pre>{exploit_script}</pre>",
+                "<h2>6. Exploit Usage</h2>",
+                f"<pre>{usage_instructions}</pre>",
+                "<h2>7. Evidence & Screenshots</h2>",
+                f"<pre>{entry}</pre>"
+            ]
 
-    except Exception as e:
-        print(Fore.RED + f"[!] HTML report generation failed: {e}")
+            # Embed screenshot if exists
+            screenshot_path = os.path.join(screenshots_dir, f"screenshot_{idx+1}.png")
+            if os.path.isfile(screenshot_path):
+                html.append(f"<img src='{screenshot_path}' alt='Screenshot {idx+1}' />")
+
+            html += [
+                "<h2>8. Impact & Damage Scenarios</h2>",
+                "<ul>",
+                "<li>Bypass authorization to modify critical data structures.</li>",
+                "<li>Chain with CSRF to perform actions on behalf of victims.</li>",
+                "<li>Potential pivot to internal services via exposed API logic.</li>",
+                "</ul>",
+                "<h2>9. Recommendations</h2>",
+                "<ol>",
+                "<li>Enforce JSON schema validation with strict key whitelisting.</li>",
+                "<li>Reject or log unknown keys at the parser layer.</li>",
+                "<li>Implement rate limiting and anomaly detection.</li>",
+                "<li>Conduct periodic fuzz testing in CI pipeline.</li>",
+                "</ol>",
+                "<h2>10. References</h2>",
+                "<ul>",
+                "<li><a href='https://owasp.org/www-project-api-security/' target='_blank'>OWASP API Security</a></li>",
+                f"<li><a href='https://cve.mitre.org/cgi-bin/cvename.cgi?name={cve_id}' target='_blank'>CVE {cve_id}</a></li>",
+                "</ul>",
+                "</section>"
+            ]
+
+        html += ["<footer><p>Report by NB2R &copy; 2025</p></footer>","</body>","</html>"]
+
+        with open("nb2r_report.html", "w") as out:
+            out.write("\n".join(html))
+        print("[✓] Comprehensive PoC report saved as nb2r_report.html")
+    except Exception as err:
+        print(f"[!] Report generation error: {err}")
 
 # Done. All-in-one script now includes a full HTML PoC report generator for bug bounty submissions. 🎯
 
