@@ -36,6 +36,9 @@ Built for offensive security researchers, bug bounty hunters, and red teams who 
 
 ---
 
+![image](https://github.com/user-attachments/assets/e7b936f7-645e-4a9e-829d-bd4fd2fa9a28)
+
+
 ## ⚙️ Usage
 
 ```bash
