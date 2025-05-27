@@ -1,4 +1,4 @@
-# Blackhat API Fuzzer: Extreme Black-Hat Grade API Fuzzing Tool 🚨
+# Blackhat API Fuzzer: Just another API Fuzzing Tool, but with HTML PoCs 🚨
 
 ![image](https://github.com/user-attachments/assets/aa619f85-15ca-496f-bf92-00a9a125f8a0)
 
