@@ -86,6 +86,9 @@ python3 nb2r.py \
   --fuzz-keys \
   --proxy http://127.0.0.1:8080
 
+Example:
+python blackhatapifuzzer.py --url https://api.example.com/endpoint --method POST --json '{"key":"FUZZ"}' --wordlist words.txt --profile redteam --match-string "error" --fuzz-keys --proxy http://127.0.0.1:8080
+
 Example with OAuth token refresh:
 
 python3 nb2r.py \
@@ -93,6 +96,31 @@ python3 nb2r.py \
   --json '{"FUZZ":"test"}' \
   --wordlist params.txt \
   --oauth-refresh '{"url":"https://auth.com/token","client_id":"abc","client_secret":"xyz","refresh_token":"longtoken..."}'
+  --extra-headers: Additional headers (key-value pairs).
+  --delay: Custom delay between requests.
+  --match-length-diff: Detect response length changes.
+  --match-string: Search for a specific string in responses.
+  --fuzz-keys: Fuzz JSON keys instead of values.
+  --proxy: Proxy URL for request routing.
+  --profile: Attack profile (stealth, redteam, zeroday).
+
+Output Files
+nb2r_exploits.log: Logs details of successful fuzzing hits.
+nb2r_poc.sh: Contains curl commands for reproducing vulnerabilities.
+nb2r_report.html: A detailed HTML report for bug bounty submissions.
+
+Dependencies
+Python libraries: 
+requests, colorama, argparse, uuid, hashlib, json, shutil.
+
+Optional tools: 
+Burp Suite, OWASP ZAP, jq (for JSON diffing).
+
+
+
+
+
+
 
 ✅ Requirements
 Python 3 is installed (which Parrot comes with by default)
